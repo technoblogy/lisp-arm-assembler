@@ -1,5 +1,5 @@
 ;
-; ARM Thumb Assembler for ARM uLisp 3.1 - 20th February 2020
+; ARM Thumb Assembler for ARM Version 2 - 4th March 2020
 ; see http://www.ulisp.com/show?2YRU
 ;
 
@@ -126,6 +126,11 @@
       (emit '(4 3 3 3 3) 5 op (regno argm) (regno argn) (regno argd))))
    (t (error "illegal argument"))))
 
+; add-10
+
+(defun add-10 (op argd immed8)
+  (emit '(4 1 3 8) 10 op (regno argd) (truncate immed8 4)))
+
 ; add-sub-11
 
 (defun add-sub-11 (op immed7)
@@ -166,6 +171,13 @@
 
 (defun $add (argd argn &optional argm)
   (cond
+   ((numberp argm)
+    (cond
+     ((eq (regno argn) 15)
+      (add-10 0 argd argm))
+     ((eq (regno argn) 13)
+      (add-10 1 argd argm))
+     (t (error "Illegal register"))))
    ((numberp argn)
     (cond
      ((eq (regno argd) 13)
