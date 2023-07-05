@@ -1,6 +1,20 @@
-; ARM Thumb Assembler for uLips - Version 8 - 5th July 2023
-; see http://www.ulisp.com/show?2YRU
+; ARM Thumb Assembler for Common Lisp - Version 8 - 5th July 2023
+; See https://github.com/technoblogy/lisp-arm-assembler
 ;
+
+(defparameter *pc* 0)
+
+; Print an assembler listing
+(defmacro defcode (&body code)
+  (let ((*print-pretty* t))
+    (setq *pc* 0)
+    (mapc
+     #'(lambda (ins)
+         (cond
+          ((atom ins) (format t "~4,'0x      ~(~a~)~%" *pc* ins) (set ins *pc*))
+          (t (format t "~4,'0x ~4,'0x ~(~a~)~%" *pc* (eval ins) ins) (incf *pc* 2))))
+     (cddr code))
+    nil))
 
 ; Extract register number
 (defun regno (sym)
