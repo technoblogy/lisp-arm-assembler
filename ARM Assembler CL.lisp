@@ -1,20 +1,31 @@
-; ARM Thumb Assembler for Common Lisp - Version 8 - 5th July 2023
+; ARM Thumb Assembler for Common Lisp - Version 8a - 6th July 2023
 ; See https://github.com/technoblogy/lisp-arm-assembler
 ;
 
 (defparameter *pc* 0)
 
 ; Print an assembler listing
-(defmacro defcode (&body code)
-  (let ((*print-pretty* t))
-    (setq *pc* 0)
-    (mapc
-     #'(lambda (ins)
-         (cond
-          ((atom ins) (format t "~4,'0x      ~(~a~)~%" *pc* ins) (set ins *pc*))
-          (t (format t "~4,'0x ~4,'0x ~(~a~)~%" *pc* (eval ins) ins) (incf *pc* 2))))
-     (cddr code))
-    nil))
+(defmacro defcode (&body body)
+  (let ((*print-pretty* t) (assembler (cddr body)))
+    (dotimes (pass 2)
+      (setq *pc* 0)
+      (mapc
+       #'(lambda (ins)
+           (cond
+            ((atom ins)
+             (unless (zerop pass) (format t "~4,'0x      ~(~a~)~%" *pc* ins))
+             (set ins *pc*))
+            ((listp (eval ins))
+             (unless (zerop pass)
+               (format t "~4,'0x ~4,'0x ~(~a~)~%" *pc* (first (eval ins)) ins)
+               (format t "~4,'0x ~4,'0x~%" (+ *pc* 2) (second (eval ins))))
+             (incf *pc* 4))
+            (t
+             (unless (zerop pass)
+               (format t "~4,'0x ~4,'0x ~(~a~)~%" *pc* (eval ins) ins))
+             (incf *pc* 2))))
+       assembler)
+      nil)))
 
 ; Extract register number
 (defun regno (sym)
