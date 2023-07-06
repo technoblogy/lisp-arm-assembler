@@ -1,4 +1,4 @@
-; ARM Thumb Assembler for uLips - Version 8 - 5th July 2023
+; ARM Thumb Assembler for uLisp - Version 8 - 5th July 2023
 ; see http://www.ulisp.com/show?2YRU
 ;
 
