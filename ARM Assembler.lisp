@@ -1,4 +1,4 @@
-; ARM Thumb Assembler for uLisp - Version 8 - 5th July 2023
+; ARM Thumb Assembler for uLisp - Version 9 - 6th August 2024
 ; see http://www.ulisp.com/show?2YRU
 ;
 
@@ -33,6 +33,11 @@
 
 (defun lsl-lsr-0 (op immed5 argm argd)
   (emit #x41533000 0 op immed5 (regno argm) (regno argd)))
+
+; asr 0
+
+(defun asr-0 (op immed5 argm argd)
+  (emit #x41533000 1 op immed5 (regno argm) (regno argd)))
 
 ; add sub 1
 
@@ -164,8 +169,14 @@
 (defun $and (argd argm)
   (reg-reg #b0100000000 argd argm))
 
-(defun $asr (argd argm)
-  (reg-reg #b0100000100 argd argm))
+(defun $asr (argd argm &optional arg2)
+  (cond
+   ((numberp arg2)
+    (asr-0 0 arg2 argm argd))
+   ((numberp argm)
+    (asr-0 0 argm argd argd))
+   (t
+    (reg-reg #b0100000100 argd argm))))
 
 (defun $b (label)
   (emit #x41b00000 #xe 0 (logand (offset label) #x7ff)))
